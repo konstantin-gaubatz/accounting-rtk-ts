@@ -27,7 +27,10 @@ const ChangePassword = ({close}: ChangePasswordProps) => {
     }
 
     const handleClickSave = async () => {
-        if (newPassword === confirmedPassword) {
+        if (oldPassword &&
+            newPassword &&
+            confirmedPassword &&
+            newPassword === confirmedPassword) {
             dispatch(clearToken());
             const token = createToken(data!.login, oldPassword);
             try {
@@ -38,7 +41,7 @@ const ChangePassword = ({close}: ChangePasswordProps) => {
             }
             close();
         } else {
-            alert('Passwords do not match');
+            alert('All fields must be filled');
         }
     }
 
