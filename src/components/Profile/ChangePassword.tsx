@@ -1,6 +1,8 @@
 import {useState} from "react";
-import {useAppDispatch} from "../../app/hooks.ts";
-import {changePassword} from "../../features/api/accountApi.ts";
+import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
+import {useChangePasswordMutation, useFetchUserQuery} from "../../features/api/accountApi.ts";
+import {createToken} from "../../utils/constants.ts";
+import {setToken} from "../../features/token/tokenSlice.ts";
 
 interface ChangePasswordProps {
     close: () => void;
@@ -12,6 +14,9 @@ const ChangePassword = ({close}: ChangePasswordProps) => {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmedPassword, setConfirmedPassword] = useState('');
+    const [changePassword] = useChangePasswordMutation();
+    const token = useAppSelector(state => state.token);
+    const {data} = useFetchUserQuery(token)
 
     const dispatch = useAppDispatch();
 
@@ -21,9 +26,15 @@ const ChangePassword = ({close}: ChangePasswordProps) => {
         setConfirmedPassword('');
     }
 
-    const handleClickSave = () => {
+    const handleClickSave = async () => {
         if (newPassword === confirmedPassword) {
-            dispatch(changePassword({newPassword, oldPassword}));
+            const token = createToken(data!.login, oldPassword);
+            try {
+                await changePassword({token, newPassword});
+                dispatch(setToken(createToken(data!.login, newPassword)));
+            } catch (error) {
+                console.log('change password error', error);
+            }
             close();
         } else {
             alert('Passwords do not match');
