@@ -2,7 +2,7 @@ import {useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
 import {useChangePasswordMutation, useFetchUserQuery} from "../../features/api/accountApi.ts";
 import {createToken} from "../../utils/constants.ts";
-import {setToken} from "../../features/token/tokenSlice.ts";
+import {clearToken, setToken} from "../../features/token/tokenSlice.ts";
 
 interface ChangePasswordProps {
     close: () => void;
@@ -28,6 +28,7 @@ const ChangePassword = ({close}: ChangePasswordProps) => {
 
     const handleClickSave = async () => {
         if (newPassword === confirmedPassword) {
+            dispatch(clearToken());
             const token = createToken(data!.login, oldPassword);
             try {
                 await changePassword({token, newPassword});
