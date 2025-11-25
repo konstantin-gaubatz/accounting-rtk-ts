@@ -31,17 +31,23 @@ const ChangePassword = ({close}: ChangePasswordProps) => {
             newPassword &&
             confirmedPassword &&
             newPassword === confirmedPassword) {
+            const tokenCopy = token;
             dispatch(clearToken());
-            const token = createToken(data!.login, oldPassword);
+            const tokenForPassChange = createToken(data!.login, oldPassword);
             try {
-                await changePassword({token, newPassword});
+                await changePassword({token: tokenForPassChange, newPassword}).unwrap();
                 dispatch(setToken(createToken(data!.login, newPassword)));
             } catch (error) {
+                alert('Failed to change password');
                 console.log('change password error', error);
+                dispatch(setToken(tokenCopy));
+                console.log(token)
+            } finally {
+                close();
             }
-            close();
+
         } else {
-            alert('All fields must be filled');
+            alert('All fields must be correct filled.');
         }
     }
 
